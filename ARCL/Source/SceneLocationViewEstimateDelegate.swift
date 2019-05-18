@@ -13,7 +13,8 @@ import MapKit
 
 // Delegate for touch events on LocationNode
 public protocol LNTouchDelegate: class {
-    func locationNodeTouched(node: AnnotationNode)
+    func annotationNodeTouched(node: AnnotationNode)
+    func connectionNodeTouched(node: ConnectionNode)
 }
 
 @available(iOS 11.0, *)
