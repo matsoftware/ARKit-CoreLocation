@@ -106,10 +106,6 @@ open class SceneLocationView: ARSCNView {
         self.addGestureRecognizer(touchGestureRecognizer)
     }
 
-    override open func layoutSubviews() {
-        super.layoutSubviews()
-    }
-
     /// Resets the scene heading to 0
     func resetSceneHeading() {
         sceneNode?.eulerAngles.y = 0
@@ -261,7 +257,7 @@ public extension SceneLocationView {
     }
 
     func removeLocationNode(locationNode: LocationNode) {
-        if let index = locationNodes.index(of: locationNode) {
+        if let index = locationNodes.firstIndex(of: locationNode) {
             locationNodes.remove(at: index)
         }
 
@@ -275,30 +271,43 @@ public extension SceneLocationView {
 
 @available(iOS 11.0, *)
 public extension SceneLocationView {
+    
+    func addPolyline(_ polyLine: PolylineNode) {
+        polylineNodes.append(polyLine)
+        polyLine.locationNodes.forEach {
+            $0.updatePositionAndScale(setup: true,
+                                      scenePosition: currentScenePosition,
+                                      locationManager: sceneLocationManager,
+                                      onCompletion: {})
+            sceneNode?.addChildNode($0)
+        }
+    }
+    
+    func removePolyLine(_ polyLine: MKPolyline) {
+        if let index = polylineNodes.firstIndex(where: { $0.polyline == polyLine }) {
+            polylineNodes.remove(at: index)
+        }
+    }
+    
+}
+
+@available(iOS 11.0, *)
+public extension SceneLocationView {
 
     func addRoutes(routes: [MKRoute]) {
         guard let altitude = sceneLocationManager.currentLocation?.altitude else {
             return assertionFailure("we don't have an elevation")
         }
-        let polyNodes = routes.map { PolylineNode(polyline: $0.polyline, altitude: altitude - 2.0) }
+        let polyNodes = routes.map { PolylineNode(polyline: $0.polyline, altitude: altitude - 4.0) }
 
-        polylineNodes.append(contentsOf: polyNodes)
         polyNodes.forEach {
-            $0.locationNodes.forEach {
-                $0.updatePositionAndScale(setup: true,
-                                          scenePosition: currentScenePosition,
-                                          locationManager: sceneLocationManager,
-                                          onCompletion: {})
-                sceneNode?.addChildNode($0)
-            }
+            addPolyline($0)
         }
     }
 
     func removeRoutes(routes: [MKRoute]) {
         routes.forEach { route in
-            if let index = polylineNodes.index(where: { $0.polyline == route.polyline }) {
-                polylineNodes.remove(at: index)
-            }
+            removePolyLine(route.polyline)
         }
     }
 }

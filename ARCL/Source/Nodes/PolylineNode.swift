@@ -63,23 +63,28 @@ public class PolylineNode {
 
             let distance = currentLocation.distance(from: nextLocation)
 
-            let box = SCNBox(width: 1, height: 0.2, length: CGFloat(distance), chamferRadius: 0)
-            box.firstMaterial?.diffuse.contents = UIColor(red: 47.0/255.0, green: 125.0/255.0, blue: 255.0/255.0, alpha: 1.0)
-
             let bearing = -currentLocation.bearing(between: nextLocation)
-
-            let boxNode = SCNNode(geometry: box)
-            boxNode.pivot = SCNMatrix4MakeTranslation(0, 0, 0.5 * Float(distance))
-            boxNode.eulerAngles.y = Float(bearing).degreesToRadians
-            boxNode.categoryBitMask = 3
-            boxNode.addChildNode(lightNode)
-            boxNode.addChildNode(lightNode3)
+            
+            let polyNode = makeBox(CGFloat(distance), bearing: bearing)
+            
+            polyNode.addChildNode(lightNode)
+            polyNode.addChildNode(lightNode3)
 
             let locationNode = LocationNode(location: currentLocation)
-            locationNode.addChildNode(boxNode)
+            locationNode.addChildNode(polyNode)
 
             locationNodes.append(locationNode)
         }
 
+    }
+    
+    private func makeBox(_ distance: CGFloat, bearing: Double) -> SCNNode {
+        let box = SCNBox(width: 1, height: 1.0, length: distance, chamferRadius: 0.5)
+        box.firstMaterial?.diffuse.contents = UIColor.lightGray // UIColor(red: 47.0/255.0, green: 125.0/255.0, blue: 255.0/255.0, alpha: 1.0)
+        let boxNode = SCNNode(geometry: box)
+        boxNode.pivot = SCNMatrix4MakeTranslation(0, 0, 0.5 * Float(distance))
+        boxNode.eulerAngles.y = Float(bearing).degreesToRadians
+        boxNode.categoryBitMask = 3
+        return boxNode
     }
 }
