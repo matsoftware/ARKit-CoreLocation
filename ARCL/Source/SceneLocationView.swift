@@ -21,6 +21,7 @@ open class SceneLocationView: ARSCNView {
     public weak var locationViewDelegate: SceneLocationViewDelegate?
     public weak var locationEstimateDelegate: SceneLocationViewEstimateDelegate?
     public weak var locationNodeTouchDelegate: LNTouchDelegate?
+    public weak var sceneTrackingDelegate: SceneTrackingDelegate?
 
     public let sceneLocationManager = SceneLocationManager()
 
