@@ -15,6 +15,7 @@ public class PolylineNode {
 
     public let polyline: MKPolyline
     public let altitude: CLLocationDistance
+    public let radius: CGFloat
     public let tag: String?
 
     private let lightNode: SCNNode = {
@@ -48,9 +49,13 @@ public class PolylineNode {
         return node
     }()
 
-    public init(polyline: MKPolyline, altitude: CLLocationDistance, tag: String? = nil) {
+    public init(polyline: MKPolyline,
+                altitude: CLLocationDistance,
+                radius: CGFloat = 0.5,
+                tag: String? = nil) {
         self.polyline = polyline
         self.altitude = altitude
+        self.radius = radius
         self.tag = tag
         contructNodes()
     }
@@ -66,7 +71,7 @@ public class PolylineNode {
 
             let bearing = -currentLocation.bearing(between: nextLocation)
             
-            let polyNode = ConnectionNode(CGFloat(distance), bearing: bearing, tag: tag)
+            let polyNode = ConnectionNode(CGFloat(distance), bearing: bearing, radius: radius, tag: tag)
             
             polyNode.addChildNode(lightNode)
             polyNode.addChildNode(lightNode3)
@@ -84,10 +89,11 @@ public class ConnectionNode: SCNNode {
     
     public private(set) var tag: String?
     
-    init(_ distance: CGFloat, bearing: Double, tag: String?) {
+    init(_ distance: CGFloat, bearing: Double, radius: CGFloat, tag: String?) {
         self.tag = tag
         super.init()
-        let box = SCNBox(width: 1, height: 1.0, length: distance, chamferRadius: 0.5)
+        let chamferRadius = radius / 2
+        let box = SCNBox(width: radius, height: radius, length: distance, chamferRadius: chamferRadius)
         box.firstMaterial?.diffuse.contents = UIColor.lightGray // UIColor(red: 47.0/255.0, green: 125.0/255.0, blue: 255.0/255.0, alpha: 1.0)
         geometry = box
         pivot = SCNMatrix4MakeTranslation(0, 0, 0.5 * Float(distance))
